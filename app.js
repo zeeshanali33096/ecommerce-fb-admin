@@ -71,11 +71,17 @@ function startSchedule() {
         const { h, m } = getTime(hours, minutes, getTimeOffset);
         const k = cronTime.everyDayAt(h, m);
 
+
+        console.log({key, k});
+
         if (jobs[key]) {
+          console.log({key, k, message: "rescheduling"});
           jobs[key].cancel();
         }
         jobs[key] = schedule.scheduleJob(k, function () {
+          console.log({key, k, message: "scheduling"});
           if (tokens[key]) {
+            console.log({key, k, message: "token found"});
             messaging
               .sendToDevice(
                 tokens[key],
@@ -91,14 +97,17 @@ function startSchedule() {
                 }
               )
               .then((resp) => {
+                console.log({key, k, message: "notification sent", resp});
                 console.log(resp);
               })
               .catch((err) => {
+                console.log({key, k, message: "notification error", err});
                 console.error({ err });
               });
           } else {
             console.log("device token not found");
             jobs[key].cancel();
+            console.log({key, k, message: "removing token"});
           }
         });
 
@@ -106,6 +115,7 @@ function startSchedule() {
 
         // const cronString =
       } else {
+        console.log({key, k, message: "no token, deleting entry"});
         db.collection("periodic").doc(key).delete();
       }
     });
