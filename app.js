@@ -8,6 +8,8 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
+let started = false;
+
 const tokens = {};
 const jobs = {};
 
@@ -17,8 +19,11 @@ const messaging = admin.messaging();
 function cb() {
   console.log("tokens updated");
   console.log(tokens);
-  startListener();
-  startSchedule();
+  if (!started) {
+    startListener();
+    startSchedule();
+    started = true;
+  } 
 }
 
 function periodicMessage(key) {
@@ -92,8 +97,8 @@ function startSchedule() {
                 console.error({ err });
               });
           } else {
-              console.log("device token not found");
-              jobs[key].cancel();
+            console.log("device token not found");
+            jobs[key].cancel();
           }
         });
 
